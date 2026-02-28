@@ -54,6 +54,8 @@ Las vistas y componentes se habilitan dependiendo el rol del usuario asi como su
 2. Pruebas unitarias en base a entrada de datos y respuestas de endpoint
 
 
+------------------------------Fin del documento------------------------------------------------------------
+
 
 
 
