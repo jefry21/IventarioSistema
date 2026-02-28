@@ -1,57 +1,26 @@
-Este proyecto esta construido bajo las siguientes caracteristicas:
-FrontEnd:
-.NET MVC CORE version 8
-Backend
-API CORE .NET version 8
-Objetos de base de datos con migración
-EF para el manejo de datos
-Validación de datos y entrada de datos
+Sistema de Gestión de Producto y Ventas – ASP.NET Core (.NET 8)
 
-Instrucciones backedn:
-al clonar el repositorio en una maquina fisica tenemos que tener en cuenta lo siguiente:
-1. Validación de que todo los entornos esten configurados como por ejemplo las herramientas de EF que son Microsoft.EntityFrameworkCore.SqlServer, Microsoft.EntityFrameworkCore.Tools y ejecución de comando dotnet tool install --global dotnet-ef para instalar las herramientas EF globalmente permitiendolas usar en consola
-2. Microsoft.AspNetCore.Authentication.JwtBearer para autenticación
+Este proyecto implementa un sistema básico de gestión de ventas utilizando una arquitectura desacoplada compuesta por un Frontend en ASP.NET Core MVC y un Backend en ASP.NET Core Web API, ambos desarrollados en .NET 8. El sistema incluye autenticación mediante JWT, control de acceso basado en roles, validaciones con DataAnnotations y manejo de base de datos mediante Entity Framework Core con migraciones.
 
-Una vez verificando esto antes de ejecutar el API tenemos que migrar la base de datos a nuestro SQL:
-1. Modificaremos el archivo appsettings.json en donde tenemos la configuración de nuestra base de datos tenemos que sustituir el server por el de la maquina enla que trabajaremos (Instancia o Link Server) con sus respectivas credenciales, para efecto de esta practica contamos con Usuario: sa y clave: sa
-2. En el mismo archivo esta la configuración de nuestro JWT en donde podemos cambiar nuestro Key de cifrado Issuer, audience y el tiempo de duración de nuestro JWT.
+La solución está dividida en dos proyectos principales: Backend y Frontend. El Backend expone endpoints REST protegidos con autenticación JWT, implementa validaciones de datos, manejo estructurado de códigos HTTP y control de acceso por roles (Administrador y Caja). El Frontend está desarrollado con Razor Views y C#, consumiendo la API mediante servicios desacoplados para mantener los controladores limpios y organizados, respetando la separación de responsabilidades del patrón MVC.
 
-Ejecutaremos los comando de migración para la creación de nuestra base: 
-1. Tenemos que estar seguro que estamos en nuestro arhcivo padre en donde se aloja nuestr backend
-2. ejecutamos dotnet ef migrations add "Este espacio lo sustituimos por el nombre de nuestra migración", esto generara o modificara una carpeta migrations en donde tendremos los cambios a la base
-3. aplicamos la migración con dotnet ef database update, esto creara y modificara nuestra base segun la tengamos configurada, antes de ejecutarlo tenemos que asegurarnos que nuestro appsettings.json tenga la cadena correcta
+Requisitos previos: es necesario contar con .NET SDK 8 instalado, SQL Server configurado y las herramientas de Entity Framework Core. Para instalar las herramientas globales de EF se debe ejecutar el siguiente comando en consola: dotnet tool install --global dotnet-ef. El Backend requiere los paquetes Microsoft.EntityFrameworkCore.SqlServer, Microsoft.EntityFrameworkCore.Tools y Microsoft.AspNetCore.Authentication.JwtBearer.
 
-Antes de utilizr nuestra API crearemos manalmente un usuario en la tabla Usuario(El API utiliza autenticación si no hay un usuario para autenticar no podremos realizar acciones)
-Campos de tabla Usuario:
-1. Id-> autoincrementable
-2. Nombre-> descripcion del usuario
-3. Rol-> rol que le pondremos al usuario(1-> administrador, 2-> Caja)
-4. Activo: Si ese usuario esta activo(1->Si, 0-> no)
-5. Contrasena-> credencial(se dejo sin cifrado por efectos de demostracion)
-Algunos campos se dejaron como demostración de que podemos hacer multiples selecciones para mejorar la seguridad como por ejemplo Activo, en este ejemplo no se tomo en cuenta
-   
-Una vez tengamos migrada nuestra base y creado el usuario podremos ejecutar nuestra API, antes de hacer cualquier movieminto debemos de tener en cuenta que usa autenticación por lo que primero tenemos que ejecutar el endpoint Login en donde nos devolvera un JWT que tenemos que ingresar en la parte superior derecha de nuestro swagger
-una vez ingresado podremos hacer movimientos, tengamos en cuenta que el token se genera dependiendo de roles de usuario.
-Cada metodo muestra los datos que espera y el tipo de dato siendo en su mayoria obligatorios
+Para configurar el proyecto, primero se debe clonar el repositorio y dirigirse al proyecto Backend. En el archivo appsettings.json se debe modificar la cadena de conexión en la sección ConnectionStrings, reemplazando el servidor y credenciales según el entorno local. En el mismo archivo se encuentran los parámetros de configuración del JWT (Key, Issuer, Audience y duración del token), los cuales pueden ajustarse según necesidad.
 
-Los metodos utilizan estados de respuesta para controlar la respuesta con codigos tambien se validaron los datos que on se ingresaran en nulos u obligfatorios con DataAnnotations
-Se realiza un Post, Put, Delete de algunos endpoint pero para esta practica no se utilizan todos pero se dejaron por demostración
+Antes de ejecutar la API, se deben aplicar las migraciones de base de datos. Ubicándose en la carpeta raíz del Backend, se ejecutan los siguientes comandos: dotnet ef migrations add InitialCreate y posteriormente dotnet ef database update. Esto generará y actualizará la base de datos según el modelo definido en el proyecto.
 
-Instricciones frontend:
-El frontend esta elaborado en base codigo c# y plantillsa razor y con poco de JS para mayor fluides asi como la separaciónd de responsabilidades entre el modelo-vista-controlador asi mismo la creación de clases para consumo de API ya que si dejamos estos consumos en el controlador tendremos un codigo extenso y poco entendible
-tambien cuenta con las pantallas de:
-1. Login: Inicio de sesión
-2. Index: tablero principal
-3. Ventas: creación de ventas simples
-4. Productos: visualización de productos resaltando los que estan bajo stock
-5. Reportes: visualización de producto de bajo stock
+Para poder autenticarse en el sistema, es necesario crear manualmente un usuario inicial en la tabla Usuario. Los campos requeridos son: Id (autoincremental), Nombre, Rol (1 = Administrador, 2 = Caja), Activo (1 = Activo, 0 = Inactivo) y Contrasena. Para efectos demostrativos la contraseña se encuentra sin cifrado y el campo Activo no tiene logica implementada.
 
-Cabe mencioanr que se tienen que agregar productos y hacer movimientos para que validaciones como stock minimo funcione
+El flujo de autenticación funciona de la siguiente manera: primero se ejecuta el endpoint Login desde Swagger o Postman, se obtiene el token JWT generado y posteriormente se ingresa en la opción Authorize de Swagger o se envía como Bearer Token en las peticiones HTTP. El token incluye claims con el rol del usuario, lo que permite habilitar o restringir acciones según permisos.
 
-Las vistas y componentes se habilitan dependiendo el rol del usuario asi como sus acciones.
+El Frontend incluye las siguientes pantallas: Login (inicio de sesión), Dashboard (panel principal), Productos (visualización y control de productos, resaltando bajo stock), Ventas (registro de ventas simples) y Reportes (visualización de productos con stock mínimo). Las vistas y acciones disponibles se habilitan dinámicamente según el rol del usuario autenticado. El consumo de la API se realiza mediante clases de servicio dedicadas, evitando llamadas directas desde los controladores y manteniendo un código más limpio y mantenible.
 
-1. Las prinicpales deciciones tecnicas de este proyecto fue la separacion de responsabilidades asi como DAO y el correcto uso de modelos para evitar consultas en cadenas asi como manejo de errores para evitar una caida de la pagina.
-2. Pruebas unitarias en base a entrada de datos y respuestas de endpoint
+El sistema implementa validaciones utilizando DataAnnotations en los modelos, control de datos obligatorios, manejo estructurado de errores y respuestas HTTP adecuadas (200, 400, 500). Se incluyen operaciones POST, PUT y DELETE para demostración del manejo completo de endpoints REST un que no todas estan implementadas en el Frontend.
+
+Entre las principales decisiones técnicas destacan: la separación clara entre frontend y backend para escalabilidad y mantenimiento, uso de DTOs para evitar exponer entidades directamente, implementación de patrón DAO para acceso a datos, autenticación basada en JWT con control de roles mediante Claims, uso de async/await para operaciones no bloqueantes y pruebas unitarias enfocadas en validación de entrada y respuestas de endpoints.
+
+Desarrollado por Jefry Omar Lagos Carranza.
 
 
 ------------------------------Fin del documento------------------------------------------------------------
