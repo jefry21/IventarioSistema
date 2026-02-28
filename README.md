@@ -18,7 +18,7 @@ Una vez verificando esto antes de ejecutar el API tenemos que migrar la base de 
 
 Ejecutaremos los comando de migración para la creación de nuestra base: 
 1. Tenemos que estar seguro que estamos en nuestro arhcivo padre en donde se aloja nuestr backend
-2. ejecutamos dotnet ef migrations add "Este espacio lo sustituimos por el nombre de nuestra migración", esto generara una carpeta migraions en donde tendremos los cambios a la base
+2. ejecutamos dotnet ef migrations add "Este espacio lo sustituimos por el nombre de nuestra migración", esto generara o modificara una carpeta migrations en donde tendremos los cambios a la base
 3. aplicamos la migración con dotnet ef database update, esto creara y modificara nuestra base segun la tengamos configurada, antes de ejecutarlo tenemos que asegurarnos que nuestro appsettings.json tenga la cadena correcta
 
 Antes de utilizr nuestra API crearemos manalmente un usuario en la tabla Usuario(El API utiliza autenticación si no hay un usuario para autenticar no podremos realizar acciones)
