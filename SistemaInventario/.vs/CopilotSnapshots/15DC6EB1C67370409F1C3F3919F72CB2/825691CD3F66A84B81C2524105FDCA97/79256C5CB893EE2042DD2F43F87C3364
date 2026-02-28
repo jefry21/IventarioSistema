@@ -1,0 +1,95 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using SistemaInventario.Models;
+using SistemaInventario.Services;
+using System.Diagnostics;
+
+namespace SistemaInventario.Controllers
+{
+    public class HomeController : Controller
+    {
+        private readonly ILogger<HomeController> _logger;
+        private readonly IApiService _apiService;
+
+        public HomeController(ILogger<HomeController> logger, IApiService apiService)
+        {
+            _logger = logger;
+            _apiService = apiService;
+        }
+
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Login(string usuario, string password)
+        {
+            try
+            {
+                var result = await _apiService.LoginAsync(usuario, password);
+
+                if (result == null)
+                {
+                    ViewBag.Error = "Usuario o contraseña incorrectos";
+                    return View();
+                }
+
+                HttpContext.Session.SetString("UsuarioNombre", result.Nombre);
+                HttpContext.Session.SetInt32("UsuarioRol", result.Rol);
+
+                if (result.Rol == 2)
+                {
+                    return RedirectToAction("Venta");
+                }
+                else
+                {
+                    return RedirectToAction("Index");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al intentar iniciar sesión");
+                ViewBag.Error = "Ocurrió un error al procesar la solicitud";
+                return View();
+            }
+        }
+
+        public IActionResult Index()
+        {
+            var rol = HttpContext.Session.GetInt32("UsuarioRol");
+            if (rol == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            if (rol == 2)
+            {
+                return RedirectToAction("Venta");
+            }
+
+            return View();
+        }
+
+        public IActionResult Venta()
+        {
+            var rol = HttpContext.Session.GetInt32("UsuarioRol");
+            if (rol == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            return View();
+        }
+
+        public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+    }
+}

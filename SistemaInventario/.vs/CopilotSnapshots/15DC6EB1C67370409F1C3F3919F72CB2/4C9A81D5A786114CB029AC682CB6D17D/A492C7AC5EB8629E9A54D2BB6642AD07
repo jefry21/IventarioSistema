@@ -1,0 +1,135 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using SistemaInventario.Models;
+using SistemaInventario.Services;
+using System.Diagnostics;
+
+namespace SistemaInventario.Controllers
+{
+    public class HomeController : Controller
+    {
+        private readonly ApiService _apiService;
+
+        public HomeController(ApiService apiService)
+        {
+            _apiService = apiService;
+        }
+
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult Login(string usuario, string password)
+        {
+            var result = _apiService.Login(usuario, password);
+
+            if (result == null)
+            {
+                ViewBag.Error = "Usuario o contraseña incorrectos";
+                return View();
+            }
+
+            HttpContext.Session.SetString("Nombre", result.Nombre);
+            HttpContext.Session.SetInt32("Rol", result.Rol);
+
+            return result.Rol == 2 ? RedirectToAction("Venta") : RedirectToAction("Index");
+        }
+
+        public IActionResult Index()
+        {
+            if (HttpContext.Session.GetInt32("Rol") == null)
+                return RedirectToAction("Login");
+
+            if (HttpContext.Session.GetInt32("Rol") == 2)
+                return RedirectToAction("Venta");
+
+            return View();
+        }
+
+        public IActionResult Venta()
+        {
+            if (HttpContext.Session.GetInt32("Rol") == null)
+                return RedirectToAction("Login");
+
+            return View();
+        }
+
+        public IActionResult Productos()
+        {
+            if (HttpContext.Session.GetInt32("Rol") == null)
+                return RedirectToAction("Login");
+
+            var productos = _apiService.ObtenerProductos();
+            return View(productos);
+        }
+
+        [HttpPost]
+        public IActionResult CrearProducto(string nombre, decimal precio, int stock, int minimoStock, int activo)
+        {
+            if (HttpContext.Session.GetInt32("Rol") == null)
+                return RedirectToAction("Login");
+
+            var producto = new Producto
+            {
+                Id = 0,
+                Nombre = nombre,
+                Precio = precio,
+                Stock = stock,
+                MInimoStock = minimoStock,
+                Activo = activo
+            };
+
+            var resultado = _apiService.CrearProducto(producto);
+            ViewBag.Mensaje = resultado ?? "Error al crear producto";
+
+            var productos = _apiService.ObtenerProductos();
+            return View("Productos", productos);
+        }
+
+        [HttpPost]
+        public IActionResult EditarProducto(int id, string nombre, decimal precio, int stock, int minimoStock, int activo)
+        {
+            if (HttpContext.Session.GetInt32("Rol") == null)
+                return RedirectToAction("Login");
+
+            var producto = new Producto
+            {
+                Id = id,
+                Nombre = nombre,
+                Precio = precio,
+                Stock = stock,
+                MInimoStock = minimoStock,
+                Activo = activo
+            };
+
+            var resultado = _apiService.EditarProducto(producto);
+            ViewBag.Mensaje = resultado ?? "Error al editar producto";
+
+            var productos = _apiService.ObtenerProductos();
+            return View("Productos", productos);
+        }
+
+        public IActionResult EliminarProducto(int id, int estado)
+        {
+            if (HttpContext.Session.GetInt32("Rol") == null)
+                return RedirectToAction("Login");
+
+            var resultado = _apiService.EliminarProducto(id, estado);
+            ViewBag.Mensaje = resultado ? "Producto actualizado" : "Error al actualizar producto";
+
+            return RedirectToAction("Productos");
+        }
+
+        public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+    }
+}

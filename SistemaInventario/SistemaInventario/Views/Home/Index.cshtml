@@ -1,0 +1,71 @@
+@{
+    ViewData["Title"] = "Principal";
+}
+
+
+
+
+@{
+    if (Context.Session.GetInt32("Rol") == 1)
+    {
+        <div class="container mt-5">
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Inventario</h5>
+                            <a href="@Url.Action("Productos", "Home")" class="btn btn-primary">Ver Productos</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Ventas</h5>
+                            <a href="@Url.Action("Venta", "Home")" class="btn btn-primary">Ir a Ventas</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Reportes</h5>
+                            <a href="@Url.Action("ReporteBajoStock", "Home")" class="btn btn-primary">Reporte</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    }
+    else
+    {
+        <div class="container mt-5">
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Inventario</h5>
+                            <a href="@Url.Action("Productos", "Home")" class="btn btn-primary">Ver Productos</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Ventas</h5>
+                            <a href="@Url.Action("Venta", "Home")" class="btn btn-primary">Ir a Ventas</a>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+    }
+}
+

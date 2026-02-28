@@ -1,0 +1,9 @@
+﻿using SistemaInventario.Models;
+
+namespace SistemaInventario.Services
+{
+    public interface IApiService
+    {
+        Task<LoginResponse> LoginAsync(string nombreUsuario, string passUsuario);
+    }
+}

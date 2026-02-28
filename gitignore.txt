@@ -1,0 +1,20 @@
+# Backend (.NET Core)
+BackEnd/bin/
+BackEnd/obj/
+BackEnd/*.user
+BackEnd/*.suo
+
+# Frontend (MVC .NET)
+FrontEnd/bin/
+FrontEnd/obj/
+FrontEnd/*.user
+FrontEnd/*.suo
+
+# IDEs
+.vscode/
+.idea/
+*.DotSettings.user
+
+# Archivos de base de datos locales
+*.db
+*.log

@@ -1,0 +1,150 @@
+﻿@model List<SistemaInventario.Models.Producto>
+
+@{
+    ViewData["Title"] = "Productos";
+}
+
+<div class="container mt-4">
+    <h2>Listado de Productos</h2>
+
+    <button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#modalCrear">
+        Crear Producto
+    </button>
+
+    @if (ViewBag.Mensaje != null)
+    {
+        <div class="alert alert-success">@ViewBag.Mensaje</div>
+    }
+
+    <table class="table table-bordered mt-3">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Stock Mínimo</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var producto in Model)
+            {
+                <tr>
+                    <td>@producto.Id</td>
+                    <td>@producto.Nombre</td>
+                    <td>$@producto.Precio</td>
+                    <td style="@(producto.Stock < producto.MInimoStock ? "background-color: red; color: white;" : "")">
+                        @producto.Stock
+                    </td>
+                    <td>@producto.MInimoStock</td>
+                    <td>@(producto.Activo == 1 ? "Activo" : "Inactivo")</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning" onclick="editarProducto(@producto.Id, '@producto.Nombre', @producto.Precio, @producto.Stock, @producto.MInimoStock, @producto.Activo)">Editar</button>
+                        <a href="@Url.Action("EliminarProducto", "Home", new { id = producto.Id, estado = producto.Activo == 1 ? 0 : 1 })" class="btn btn-sm @(producto.Activo == 1 ? "btn-danger" : "btn-success")" onclick="return confirm('¿Está seguro?')">
+                            @(producto.Activo == 1 ? "Desactivar" : "Activar")
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="modalCrear" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Crear Producto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" asp-action="CrearProducto">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" class="form-control" name="nombre" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Precio</label>
+                        <input type="number" class="form-control" name="precio" step="0.01" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Stock</label>
+                        <input type="number" class="form-control" name="stock" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Stock Mínimo</label>
+                        <input type="number" class="form-control" name="minimoStock" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Estado</label>
+                        <select class="form-control" name="activo" required>
+                            <option value="1">Activo</option>
+                            <option value="0">Inactivo</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalEditar" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Producto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" asp-action="EditarProducto">
+                <div class="modal-body">
+                    <input type="hidden" id="editId" name="id" />
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="editNombre" name="nombre" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Precio</label>
+                        <input type="number" class="form-control" id="editPrecio" name="precio" step="0.01" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Stock</label>
+                        <input type="number" class="form-control" id="editStock" name="stock" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Stock Mínimo</label>
+                        <input type="number" class="form-control" id="editMinimoStock" name="minimoStock" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Estado</label>
+                        <select class="form-control" id="editActivo" name="activo" required>
+                            <option value="1">Activo</option>
+                            <option value="0">Inactivo</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning">Actualizar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function editarProducto(id, nombre, precio, stock, minimoStock, activo) {
+        document.getElementById('editId').value = id;
+        document.getElementById('editNombre').value = nombre;
+        document.getElementById('editPrecio').value = precio;
+        document.getElementById('editStock').value = stock;
+        document.getElementById('editMinimoStock').value = minimoStock;
+        document.getElementById('editActivo').value = activo;
+        new bootstrap.Modal(document.getElementById('modalEditar')).show();
+    }
+</script>

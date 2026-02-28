@@ -1,0 +1,42 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12">
+            <h2>Bienvenido, @Context.Session.GetString("UsuarioNombre")</h2>
+            <p>Sistema de Inventario - Panel Principal</p>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Inventario</h5>
+                    <p class="card-text">Gestión de productos e inventario</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Ventas</h5>
+                    <p class="card-text">Registro y consulta de ventas</p>
+                    <a href="@Url.Action("Venta", "Home")" class="btn btn-primary">Ir a Ventas</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Reportes</h5>
+                    <p class="card-text">Reportes y estadísticas</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

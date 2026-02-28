@@ -1,0 +1,38 @@
+﻿@{
+    ViewData["Title"] = "Ventas";
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12">
+            <h2>Módulo de Ventas</h2>
+            <p>Bienvenido, @Context.Session.GetString("UsuarioNombre")</p>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Nueva Venta</h5>
+                </div>
+                <div class="card-body">
+                    <p>Formulario de ventas...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Historial de Ventas</h5>
+                </div>
+                <div class="card-body">
+                    <p>Listado de ventas realizadas...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

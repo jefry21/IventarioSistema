@@ -1,0 +1,71 @@
+﻿using SistemaInventario.Models;
+using System.Text;
+using System.Text.Json;
+
+namespace SistemaInventario.Services
+{
+    public class ApiService
+    {
+        private readonly HttpClient _httpClient;
+
+        public ApiService(HttpClient httpClient)
+        {
+            _httpClient = httpClient;
+        }
+
+        public LoginResponse Login(string nombreUsuario, string passUsuario)
+        {
+            try
+            {
+                var request = new LoginRequest
+                {
+                    NombreUsuario = nombreUsuario,
+                    PassUsuario = passUsuario
+                };
+
+                var json = JsonSerializer.Serialize(request);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = _httpClient.PostAsync("https://localhost:7237/api/Login", content).Result;
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return null;
+                }
+
+                var responseContent = response.Content.ReadAsStringAsync().Result;
+                return JsonSerializer.Deserialize<LoginResponse>(responseContent, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public List<Producto> ObtenerProductos()
+        {
+            try
+            {
+                var response = _httpClient.GetAsync("https://localhost:7237/api/Productos").Result;
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return new List<Producto>();
+                }
+
+                var responseContent = response.Content.ReadAsStringAsync().Result;
+                return JsonSerializer.Deserialize<List<Producto>>(responseContent, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+            }
+            catch
+            {
+                return new List<Producto>();
+            }
+        }
+    }
+}

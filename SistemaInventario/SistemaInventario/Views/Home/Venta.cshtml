@@ -1,0 +1,139 @@
+@{
+    ViewData["Title"] = "Ventas";
+}
+
+
+@model List<SistemaInventario.Models.Producto>
+
+<h2>Ventas</h2>
+
+@if (ViewBag.Mensaje != null)
+{
+    <script>alert('@ViewBag.Mensaje');</script>
+}
+
+<div style="display:flex; gap:20px;">
+
+    <div style="flex:2;">
+        <h4>Productos</h4>
+        <table border="1" style="width:100%; border-collapse:collapse;">
+            <tr>
+                <th>Nombre</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th></th>
+            </tr>
+            @{
+                if (Model != null)
+                {
+                    foreach (var p in Model.Where(x => x.Activo == 1 && x.Stock > 0))
+                    {
+                        <tr>
+                            <td>@p.Nombre</td>
+                            <td>@p.Precio</td>
+                            <td style="@(p.Stock < p.MInimoStock ? "background:red; color:white;" : "")">@p.Stock</td>
+                            <td><button onclick="agregar(@p.Id, '@p.Nombre', @p.Precio, @p.Stock)">+</button></td>
+                        </tr>
+                    }
+                }
+            }
+        </table>
+    </div>
+
+    <div style="flex:1;">
+        <h4>Carrito</h4>
+        <input type="text" id="cliente" placeholder="Cliente" style="width:100%; margin-bottom:10px;" required="true" />
+
+        <table border="1" style="width:100%; border-collapse:collapse;">
+            <tr>
+                <th>Producto</th>
+                <th>Cant</th>
+                <th>Total</th>
+                <th></th>
+            </tr>
+            <tbody id="carrito"></tbody>
+        </table>
+
+        <h3 id="subtotal">0</h3>
+        <h3 id="total">0</h3>
+        <button onclick="vender()" style="width:100%; padding:10px;">Vender</button>
+    </div>
+
+</div>
+
+<form id="formVenta" method="post" action="@Url.Action("ProcesarVenta")">
+    <input type="hidden" id="clienteVenta" name="clienteVenta" />
+    <input type="hidden" id="SubtotalVentat" name="SubtotalVentat" />
+    <input type="hidden" id="TotalVentat" name="TotalVentat" />
+    <input type="hidden" id="productosJson" name="productosJson" />
+</form>
+
+<script>
+    let carrito = [];
+
+    function agregar(id, nombre, precio, stock) {
+        let item = carrito.find(x => x.productoId == id);
+        if (item) {
+            if (item.cantidad < stock) item.cantidad++;
+            else { alert('Sin stock'); return; }
+        } else {
+            carrito.push({ productoId: id, nombre: nombre, precio: precio, cantidad: 1, stock: stock });
+        }
+        mostrar();
+    }
+
+    function quitar(id) {
+        carrito = carrito.filter(x => x.productoId != id);
+        mostrar();
+    }
+
+    function cambiar(id, cant) {
+        let item = carrito.find(x => x.productoId == id);
+        if (item && cant > 0 && cant <= item.stock) {
+            item.cantidad = parseInt(cant);
+            mostrar();
+        }
+    }
+
+    function mostrar() {
+        let html = '';
+        let total = 0;
+         let subtotal = 0;
+        carrito.forEach(item => {
+            subtotal = item.precio * item.cantidad;
+            total += subtotal;
+            html += `<tr>
+                <td>${item.nombre}</td>
+                <td>${item.cantidad}</td>
+              
+                <td><button onclick="quitar(${item.productoId})">X</button></td>
+            </tr>`;
+        });
+        document.getElementById('carrito').innerHTML = html;
+        document.getElementById('subtotal').innerText = subtotal;
+        document.getElementById('total').innerText = total;
+    }
+
+    function vender() {
+        let cliente = document.getElementById('cliente').value;
+        let TotalVenta = document.getElementById('total').textContent;
+        let SubtotalVenta = document.getElementById('subtotal').textContent;
+
+        if (!cliente) { alert('Ingrese cliente'); return; }
+        if (carrito.length == 0) { alert('Carrito vacío'); return; }
+
+        let productos = carrito.map(item => ({
+            IdVentaDetalle: 0,
+            ProductoId: item.productoId,
+            CantidadProducto: item.cantidad,
+            PrecioUnitario: item.precio,
+            IdVenta: 0
+        }));
+
+        document.getElementById('clienteVenta').value = cliente;
+        document.getElementById('SubtotalVentat').value = SubtotalVenta;
+        document.getElementById('TotalVentat').value = TotalVenta;
+        document.getElementById('productosJson').value = JSON.stringify(productos);
+        document.getElementById('formVenta').submit();
+    }
+</script>

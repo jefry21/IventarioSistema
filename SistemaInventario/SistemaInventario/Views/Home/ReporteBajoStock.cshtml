@@ -1,0 +1,37 @@
+﻿@{
+    ViewData["Title"] = "Bajo Stock";
+}
+
+@model List<SistemaInventario.Models.Producto>
+
+<div class="container mt-4">
+    <h2>Listado de Productos</h2>
+
+    <table class="table table-bordered mt-3">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Stock Mínimo</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var producto in Model.Where(x => x.Stock < x.MInimoStock))
+            {
+                <tr>
+                    <td>@producto.Id</td>
+                    <td>@producto.Nombre</td>
+                    <td>$@producto.Precio</td>
+                    <td style="@(producto.Stock < producto.MInimoStock ? "background-color: red; color: white;" : "")">
+                        @producto.Stock
+                    </td>
+                    <td>@producto.MInimoStock</td>
+                    <td>@(producto.Activo == 1 ? "Activo" : "Inactivo")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

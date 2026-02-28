@@ -1,0 +1,166 @@
+﻿using SistemaInventario.Models;
+using System.Text;
+using System.Text.Json;
+
+namespace SistemaInventario.Services
+{
+    public class ApiService
+    {
+        private readonly HttpClient _httpClient;
+
+        public ApiService(HttpClient httpClient)
+        {
+            _httpClient = httpClient;
+        }
+
+        public LoginResponse Login(string nombreUsuario, string passUsuario)
+        {
+            try
+            {
+                var request = new LoginRequest
+                {
+                    NombreUsuario = nombreUsuario,
+                    PassUsuario = passUsuario
+                };
+
+                var json = JsonSerializer.Serialize(request);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = _httpClient.PostAsync("https://localhost:7237/api/Login", content).Result;
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return null;
+                }
+
+                var responseContent = response.Content.ReadAsStringAsync().Result;
+                return JsonSerializer.Deserialize<LoginResponse>(responseContent, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public List<Producto> ObtenerProductos()
+        {
+            try
+            {
+                var response = _httpClient.GetAsync("https://localhost:7237/api/Productos").Result;
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return new List<Producto>();
+                }
+
+                var responseContent = response.Content.ReadAsStringAsync().Result;
+                return JsonSerializer.Deserialize<List<Producto>>(responseContent, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+            }
+            catch
+            {
+                return new List<Producto>();
+            }
+        }
+
+        public string CrearProducto(Producto producto)
+        {
+            try
+            {
+                var json = JsonSerializer.Serialize(producto);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = _httpClient.PostAsync("https://localhost:7237/api/Productos", content).Result;
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return null;
+                }
+
+                return response.Content.ReadAsStringAsync().Result;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public string EditarProducto(Producto producto)
+        {
+            try
+            {
+                var json = JsonSerializer.Serialize(producto);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = _httpClient.PutAsync("https://localhost:7237/api/Productos", content).Result;
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return null;
+                }
+
+                return response.Content.ReadAsStringAsync().Result;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public bool EliminarProducto(int id, int estado)
+        {
+            try
+            {
+                var request = new
+                {
+                    estado = estado,
+                    idProducto = id
+                };
+
+                var json = JsonSerializer.Serialize(request);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var httpRequest = new HttpRequestMessage
+                {
+                    Method = HttpMethod.Delete,
+                    RequestUri = new Uri("https://localhost:7237/api/Productos"),
+                    Content = content
+                };
+
+                var response = _httpClient.SendAsync(httpRequest).Result;
+                return response.IsSuccessStatusCode;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public string CrearVenta(VentaRequest venta)
+        {
+            try
+            {
+                var json = JsonSerializer.Serialize(venta);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = _httpClient.PostAsync("https://localhost:7237/api/Ventas", content).Result;
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return null;
+                }
+
+                return response.Content.ReadAsStringAsync().Result;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+    }
+}

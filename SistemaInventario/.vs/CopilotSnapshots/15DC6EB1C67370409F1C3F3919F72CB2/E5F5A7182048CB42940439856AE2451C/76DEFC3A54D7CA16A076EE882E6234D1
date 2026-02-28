@@ -1,0 +1,43 @@
+﻿using SistemaInventario.Models;
+using System.Text;
+using System.Text.Json;
+
+namespace SistemaInventario.Services
+{
+    public class ApiService : IApiService
+    {
+        private readonly HttpClient _httpClient;
+        private readonly string _baseUrl;
+
+        public ApiService(HttpClient httpClient, IConfiguration configuration)
+        {
+            _httpClient = httpClient;
+            _baseUrl = configuration["ApiSettings:BaseUrl"] ?? "https://localhost:7237";
+        }
+
+        public async Task<LoginResponse> LoginAsync(string nombreUsuario, string passUsuario)
+        {
+            var request = new LoginRequest
+            {
+                NombreUsuario = nombreUsuario,
+                PassUsuario = passUsuario
+            };
+
+            var json = JsonSerializer.Serialize(request);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PostAsync($"{_baseUrl}/api/Login", content);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return null;
+            }
+
+            var responseContent = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<LoginResponse>(responseContent, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+        }
+    }
+}
